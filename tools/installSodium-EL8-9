@@ -1,0 +1,6 @@
+#!/bin/bash
+# Installation of libsodium, libsodium-devel on EL8-9 if you're on a RHEL system w/o repo
+wget https://dl.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/l/libsodium-1.0.18-2.el8.x86_64.rpm
+wget https://dl.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/l/libsodium-devel-1.0.18-2.el8.x86_64.rpm
+
+rpm -ivh ./libsodium-1.0.18-2.el8.x86_64.rpm ./libsodium-devel-1.0.18-2.el8.x86_64.rpm

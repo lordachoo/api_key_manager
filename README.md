@@ -24,15 +24,30 @@ A secure command-line tool for storing and managing API keys using SQLite and li
 - SQLite3 (`libsqlite3-dev`)
 - libsodium (`libsodium-dev`)
 
-## Building
+# Compile
+
+### Ubuntu 22.x
 
 ```bash
+git clone https://github.com/lordachoo/api_key_manager.git
+cd api_key_manager
+sudo apt install libsqlite3-dev sqlite3
+sudo apt install libsodium-dev libsodium23
 make
 ```
 
-## Usage
+### RHEL 8-9
 
-### First Run - Setting Master Password
+```bash
+git clone https://github.com/lordachoo/api_key_manager.git
+cd api_key_manager
+sudo yum install sqlite-devel
+sudo yum install libsodium-devel
+```
+
+# Usage
+
+## First Run - Setting Master Password
 
 On first run with no arguments, you'll be prompted to set a master password:
 
@@ -40,7 +55,7 @@ On first run with no arguments, you'll be prompted to set a master password:
 ./api_key_manager
 ```
 
-### Adding an API Key
+## Adding an API Key
 
 To add a new API key:
 
@@ -52,7 +67,7 @@ You'll be prompted for:
 1. Master password
 2. The API key to store
 
-### Listing Stored Keys
+## Listing Stored Keys
 
 To list all stored API keys (shows IDs and descriptions only, not the actual keys):
 
@@ -60,7 +75,7 @@ To list all stored API keys (shows IDs and descriptions only, not the actual key
 ./api_key_manager -l
 ```
 
-### Retrieving an API Key
+## Retrieving an API Key
 
 To retrieve a specific API key by its ID:
 
@@ -68,7 +83,7 @@ To retrieve a specific API key by its ID:
 ./api_key_manager -g <id>
 ```
 
-### Deleting an API Key
+## Deleting an API Key
 
 To delete a specific API key by its ID:
 
@@ -80,7 +95,7 @@ You'll be prompted for:
 1. Master password
 2. Confirmation to delete the key
 
-### Version Information
+## Version Information
 
 To display version information:
 
@@ -88,9 +103,9 @@ To display version information:
 ./api_key_manager -v
 ```
 
-## Technical Details
+# Technical Details
 
-### Database Structure
+## Database Structure
 
 The application uses two SQLite tables:
 
@@ -104,7 +119,7 @@ The application uses two SQLite tables:
    - `encrypted_key`: The encrypted API key
    - `key_len`: Length of the encrypted data
 
-### Encryption Process
+## Encryption Process
 
 1. **Key Derivation**:
    - Master password is processed using `crypto_pwhash` to derive the encryption key
@@ -120,7 +135,7 @@ The application uses two SQLite tables:
    - The complete encrypted package (nonce + encrypted data + MAC) is stored in the database
    - The total length is stored to ensure proper decryption
 
-### Security Considerations
+## Security Considerations
 
 - The database file (`api_keys.db`) contains encrypted data but should still be protected
 - The master password is never stored in plain text
