@@ -1,0 +1,4 @@
+.aider*
+api_keys.db
+pkgs/
+api_key_manager
