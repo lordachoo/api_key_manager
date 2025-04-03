@@ -43,6 +43,7 @@ git clone https://github.com/lordachoo/api_key_manager.git
 cd api_key_manager
 sudo yum install sqlite-devel
 sudo yum install libsodium-devel
+make
 ```
 
 # Usage
