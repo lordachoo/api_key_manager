@@ -11,6 +11,7 @@
 #define NONCE_LEN crypto_secretbox_NONCEBYTES
 #define SALT_LEN crypto_pwhash_SALTBYTES
 #define PWD_BUF_LEN 256
+#define VERSION "1.1"
 
 typedef struct {
     int id;
@@ -167,6 +168,62 @@ void get_key(int id) {
     sqlite3_finalize(stmt);
 }
 
+void delete_key(int id) {
+    // First check if the key exists
+    sqlite3_stmt *stmt;
+    const char *check_sql = "SELECT description FROM api_keys WHERE id = ?;";
+    
+    int rc = sqlite3_prepare_v2(db, check_sql, -1, &stmt, 0);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, id);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        printf("No key found with ID %d\n", id);
+        sqlite3_finalize(stmt);
+        return;
+    }
+
+    //const unsigned char *description = sqlite3_column_text(stmt, 0);
+    //sqlite3_finalize(stmt);
+
+    // Confirm deletion
+    printf("Are you sure you want to delete the API key ID: %d [y/N]: ", id);
+    char confirm[4];
+    if (fgets(confirm, sizeof(confirm), stdin) == NULL) {
+        fprintf(stderr, "Error reading confirmation\n");
+        return;
+    }
+
+    if (confirm[0] != 'y' && confirm[0] != 'Y') {
+        printf("Deletion cancelled\n");
+        return;
+    }
+
+    // Delete the key
+    const char *delete_sql = "DELETE FROM api_keys WHERE id = ?;";
+    rc = sqlite3_prepare_v2(db, delete_sql, -1, &stmt, 0);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, id);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "Error deleting key: %s\n", sqlite3_errmsg(db));
+    } else {
+        printf("API key deleted successfully\n");
+    }
+
+    sqlite3_finalize(stmt);
+}
+
 int main(int argc, char *argv[]) {
     if (sodium_init() < 0) {
         fprintf(stderr, "Could not initialize libsodium\n");
@@ -275,7 +332,7 @@ int main(int argc, char *argv[]) {
 
     // Parse command line arguments
     int opt;
-    while ((opt = getopt(argc, argv, "a:lg:")) != -1) {
+    while ((opt = getopt(argc, argv, "a:lg:vd:")) != -1) {
         switch (opt) {
             case 'a': // Add key
                 printf("Enter API key: ");
@@ -296,8 +353,27 @@ int main(int argc, char *argv[]) {
             case 'g': // Get key by ID
                 get_key(atoi(optarg));
                 break;
+            case 'v': // Display version
+                printf("\n%s version %s\n", argv[0], VERSION);
+                fprintf(stderr, "Usage: %s [-a description] [-l] [-g id] [-d id] [-v]\n", argv[0]);
+                fprintf(stderr, "Options:\n");
+                fprintf(stderr, "  -a <description>  Add a new API key\n");
+                fprintf(stderr, "  -l               List stored API keys\n");
+                fprintf(stderr, "  -g <id>          Get API key by ID\n");
+                fprintf(stderr, "  -d <id>          Delete API key by ID\n");
+                fprintf(stderr, "  -v               Display version information\n");
+                return 0;
+            case 'd': // Delete key by ID
+                delete_key(atoi(optarg));
+                break;
             default:
-                fprintf(stderr, "Usage: %s [-a description] [-l] [-g id]\n", argv[0]);
+                fprintf(stderr, "Usage: %s [-a description] [-l] [-g id] [-d id] [-v]\n", argv[0]);
+                fprintf(stderr, "Options:\n");
+                fprintf(stderr, "  -a <description>  Add a new API key\n");
+                fprintf(stderr, "  -l               List stored API keys\n");
+                fprintf(stderr, "  -g <id>          Get API key by ID\n");
+                fprintf(stderr, "  -d <id>          Delete API key by ID\n");
+                fprintf(stderr, "  -v               Display version information\n");
                 return 1;
         }
     }

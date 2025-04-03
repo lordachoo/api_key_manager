@@ -6,8 +6,10 @@ A secure command-line tool for storing and managing API keys using SQLite and li
 
 - Secure storage of API keys using strong encryption (libsodium)
 - Master password protection with secure password hashing
+   - Master password is input on the first db initialization and CANNOT be recovered if lost afterwards
 - SQLite database backend for reliable storage
 - Command-line interface for easy integration into scripts
+
 
 ## Security Features
 
@@ -64,6 +66,26 @@ To retrieve a specific API key by its ID:
 
 ```bash
 ./api_key_manager -g <id>
+```
+
+### Deleting an API Key
+
+To delete a specific API key by its ID:
+
+```bash
+./api_key_manager -d <id>
+```
+
+You'll be prompted for:
+1. Master password
+2. Confirmation to delete the key
+
+### Version Information
+
+To display version information:
+
+```bash
+./api_key_manager -v
 ```
 
 ## Technical Details
