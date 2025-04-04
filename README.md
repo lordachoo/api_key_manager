@@ -1,5 +1,7 @@
 # API Key Manager
 
+- Version `v1.2`
+
 A secure command-line tool for storing and managing API keys using SQLite and libsodium encryption.
 
 ## Features
@@ -50,7 +52,9 @@ make
 
 ## First Run - Setting Master Password
 
-On first run with no arguments, you'll be prompted to set a master password:
+- On first run with no arguments, you'll be prompted to set a master password:
+   - Note the password you type in is NOT echoed back to the terminal. Type CAREFULLY.
+   - Consider putting a space in front of your commands if you want to prevent logging of this tool to HIST.
 
 ```bash
 ./api_key_manager

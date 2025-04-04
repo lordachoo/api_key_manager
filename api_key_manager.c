@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 #include <sodium.h>
 #include <getopt.h>
+#include <termios.h>
+#include <unistd.h>
 
 #define MAX_DESC_LEN 256
 #define MAX_KEY_LEN 256
@@ -11,7 +13,7 @@
 #define NONCE_LEN crypto_secretbox_NONCEBYTES
 #define SALT_LEN crypto_pwhash_SALTBYTES
 #define PWD_BUF_LEN 256
-#define VERSION "1.1"
+#define VERSION "1.2"
 
 typedef struct {
     int id;
@@ -245,18 +247,49 @@ int main(int argc, char *argv[]) {
     int master_key_exists = (rc == SQLITE_ROW);
     sqlite3_finalize(stmt);
 
-    // Get the password from user
+    // Get the password from user without showing it
     char password[PWD_BUF_LEN];
+    struct termios old_term, new_term;
+
+    // Get the current terminal settings
+    if (tcgetattr(STDIN_FILENO, &old_term) != 0) {
+        fprintf(stderr, "Error getting terminal attributes\n");
+        return 1;
+    }
+
+    // Create new settings with echo disabled
+    new_term = old_term;
+    new_term.c_lflag &= ~ECHO;
+
+    // Set the new terminal settings
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &new_term) != 0) {
+        fprintf(stderr, "Error setting terminal attributes\n");
+        return 1;
+    }
+
     if (!master_key_exists && argc == 1) {
         printf("No master key set. Please set a master key: ");
     } else {
         printf("Enter master key: ");
     }
+    fflush(stdout);
 
     if (fgets(password, PWD_BUF_LEN, stdin) == NULL) {
-        fprintf(stderr, "Error reading master key\n");
+        // Restore terminal settings before returning
+        tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
+        fprintf(stderr, "\nError reading master key\n");
         return 1;
     }
+
+    // Print a newline since Enter key was hidden
+    printf("\n");
+
+    // Restore the original terminal settings
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &old_term) != 0) {
+        fprintf(stderr, "Error restoring terminal attributes\n");
+        return 1;
+    }
+
     // Remove newline if present
     char *newline = strchr(password, '\n');
     if (newline) *newline = '\0';
