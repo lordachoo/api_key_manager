@@ -94,7 +94,9 @@ void decrypt_key(const unsigned char *encrypted, size_t total_len, char *plain_k
 
 void add_key(const char *description, const char *api_key) {
     APIKey new_key;
-    strncpy(new_key.description, description, MAX_DESC_LEN);
+    // Copy description and ensure null termination
+    strncpy(new_key.description, description, MAX_DESC_LEN - 1);
+    new_key.description[MAX_DESC_LEN - 1] = '\0';
     size_t plain_len = strlen(api_key) + 1; // Include null terminator
     
     // Encrypt the key and get the total length of encrypted data
