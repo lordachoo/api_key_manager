@@ -146,3 +146,9 @@ The application uses two SQLite tables:
 - The master password is never stored in plain text
 - Each API key is encrypted with a unique nonce
 - MAC verification ensures encrypted data hasn't been tampered with
+
+## Security Testing
+
+### Argon2 Password Cracking
+
+For security research purposes, notes on testing the strength of Argon2 password hashing (as used in this application) are available in the [Argon2 Cracking Notes](tools/argon2CrackNotes) file. This information is provided to help understand the importance of strong master passwords when using this tool.
