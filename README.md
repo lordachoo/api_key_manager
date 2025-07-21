@@ -1,6 +1,6 @@
 # API Key Manager
 
-- Version `v1.2`
+- Version `v1.3`
 
 A secure command-line tool for storing and managing API keys using SQLite and libsodium encryption.
 

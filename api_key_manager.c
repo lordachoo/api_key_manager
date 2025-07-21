@@ -13,7 +13,7 @@
 #define NONCE_LEN crypto_secretbox_NONCEBYTES
 #define SALT_LEN crypto_pwhash_SALTBYTES
 #define PWD_BUF_LEN 256
-#define VERSION "1.2"
+#define VERSION "1.3"
 
 typedef struct {
     int id;
